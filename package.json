@@ -1,0 +1,33 @@
+{
+  "author": "ensia96",
+  "bin": { "oh-my-mango": "dist/bin/oh-my-mango.js" },
+  "bugs": {
+    "url": "https://github.com/ensia96/oh-my-mango/issues"
+  },
+  "description": "OpenCode plugin for comprehensive problem solving with divide-and-conquer strategy",
+  "devDependencies": {
+    "@opencode-ai/plugin": "^1.1.20",
+    "@types/node": "^22",
+    "typescript": "^5"
+  },
+  "files": ["dist"],
+  "homepage": "https://github.com/ensia96/oh-my-mango#readme",
+  "keywords": ["agent", "ai", "divide-and-conquer", "multi-agent", "opencode", "opencode-plugin", "orchestration"],
+  "license": "MIT",
+  "main": "dist/src/index.js",
+  "name": "oh-my-mango",
+  "peerDependencies": {
+    "opencode-ai": ">=1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ensia96/oh-my-mango"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "bun run build"
+  },
+  "type": "module",
+  "types": "dist/src/index.d.ts",
+  "version": "0.0.2"
+}
