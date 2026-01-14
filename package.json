@@ -14,7 +14,7 @@
   "homepage": "https://github.com/ensia96/oh-my-mango#readme",
   "keywords": ["agent", "ai", "divide-and-conquer", "multi-agent", "opencode", "opencode-plugin", "orchestration"],
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "name": "oh-my-mango",
   "peerDependencies": {
     "opencode-ai": ">=1.0.0"
@@ -28,6 +28,6 @@
     "prepublishOnly": "bun run build"
   },
   "type": "module",
-  "types": "dist/index.d.ts",
+  "types": "dist/src/index.d.ts",
   "version": "0.0.1"
 }
