@@ -1,5 +1,6 @@
 {
   "author": "ensia96",
+  "bin": { "oh-my-mango": "dist/bin/oh-my-mango.js" },
   "bugs": {
     "url": "https://github.com/ensia96/oh-my-mango/issues"
   },
