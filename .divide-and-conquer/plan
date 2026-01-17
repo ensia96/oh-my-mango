@@ -1,0 +1,35 @@
+# 계획: mango 에이전트 등록
+
+## 문제 정의
+
+OpenCode 플러그인 config hook을 통해 mango 에이전트를 최소 속성으로 등록하고 기본 에이전트로 지정
+
+## 완료 조건
+
+- [ ] src/index.ts에 config hook 추가
+- [ ] mango 에이전트 최소 AgentConfig 정의 (prompt: "", description, mode: "primary")
+- [ ] default_agent = "mango" 설정
+- [ ] 빌드 성공
+- [ ] OpenCode 실행 후 에이전트 목록에서 mango 확인
+
+## 분할 트리
+
+```
+0. mango 에이전트 등록
+├── 1. src/index.ts에 config hook 및 AgentConfig 추가
+└── 2. 검증
+    ├── 2.1. 빌드 성공 확인
+    └── 2.2. OpenCode에서 에이전트 호출 확인
+```
+
+## 의존성 기반 정렬
+
+```
+1 → [빌드 검증] → 2.1 → 2.2
+```
+
+## 계획 검토
+
+- 부분 문제: 1개
+- 검증 포인트: 2개 (빌드, 동작)
+- 예상 작업: 단순
