@@ -1,6 +1,8 @@
 {
   "author": "ensia96",
-  "bin": { "oh-my-mango": "dist/bin/oh-my-mango.js" },
+  "bin": {
+    "oh-my-mango": "dist/bin/oh-my-mango.js"
+  },
   "bugs": {
     "url": "https://github.com/ensia96/oh-my-mango/issues"
   },
@@ -10,9 +12,19 @@
     "@types/node": "^22",
     "typescript": "^5"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "homepage": "https://github.com/ensia96/oh-my-mango#readme",
-  "keywords": ["agent", "ai", "divide-and-conquer", "multi-agent", "opencode", "opencode-plugin", "orchestration"],
+  "keywords": [
+    "agent",
+    "ai",
+    "divide-and-conquer",
+    "multi-agent",
+    "opencode",
+    "opencode-plugin",
+    "orchestration"
+  ],
   "license": "MIT",
   "main": "dist/src/index.js",
   "name": "oh-my-mango",
@@ -29,5 +41,5 @@
   },
   "type": "module",
   "types": "dist/src/index.d.ts",
-  "version": "0.0.6"
+  "version": "0.0.7"
 }
