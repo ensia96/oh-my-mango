@@ -42,6 +42,10 @@ export async function callAgent(
       path: { id: sessionID },
       body: {
         agent: agentName,
+        model: {
+          providerID: "anthropic",
+          modelID: "claude-sonnet-4-20250514",
+        },
         tools: {
           task: false,
         },
