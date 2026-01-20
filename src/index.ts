@@ -7,6 +7,7 @@ import {
   remind_find,
 } from "./tools/remind"
 import { find_file, find_content, find_recent } from "./tools/find"
+import { createCallResearchMango } from "./tools/call-research-mango"
 
 const PR_MANGO_PROMPT = `# PR 망고
 
@@ -346,8 +347,10 @@ const MANGO_PROMPT = `# 행동 지침
 작업 결과를 검증하고 사용자에게 보고합니다.
 `
 
-const plugin: Plugin = async () => {
+const plugin: Plugin = async (ctx) => {
   console.log("[oh-my-mango] initialized")
+  const call_research_mango = createCallResearchMango(ctx)
+
   return {
     config: async (config) => {
       config.agent = {
@@ -394,6 +397,7 @@ const plugin: Plugin = async () => {
       find_file,
       find_content,
       find_recent,
+      call_research_mango,
     },
   }
 }
