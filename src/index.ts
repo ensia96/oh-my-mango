@@ -6,6 +6,7 @@ import {
   remind_info,
   remind_find,
 } from "./tools/remind"
+import { find_file, find_content, find_recent } from "./tools/find"
 
 const PR_MANGO_PROMPT = `# PR 망고
 
@@ -390,6 +391,9 @@ const plugin: Plugin = async () => {
       remind_search,
       remind_info,
       remind_find,
+      find_file,
+      find_content,
+      find_recent,
     },
   }
 }
