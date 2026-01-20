@@ -1,4 +1,11 @@
 import type { Plugin } from "@opencode-ai/plugin"
+import {
+  remind_list,
+  remind_read,
+  remind_search,
+  remind_info,
+  remind_find,
+} from "./tools/remind"
 
 const PR_MANGO_PROMPT = `# PR 망고
 
@@ -378,7 +385,11 @@ const plugin: Plugin = async () => {
       ;(config as { default_agent?: string }).default_agent = "mango"
     },
     tool: {
-      // 도구들은 후속 단계에서 추가 예정
+      remind_list,
+      remind_read,
+      remind_search,
+      remind_info,
+      remind_find,
     },
   }
 }
