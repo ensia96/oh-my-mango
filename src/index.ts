@@ -333,6 +333,9 @@ const plugin: Plugin = async () => {
       }
       ;(config as { default_agent?: string }).default_agent = "mango"
     },
+    tool: {
+      // 도구들은 후속 단계에서 추가 예정
+    },
   }
 }
 
