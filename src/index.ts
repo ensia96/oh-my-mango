@@ -8,6 +8,9 @@ import {
 } from "./tools/remind"
 import { find_file, find_content, find_recent } from "./tools/find"
 import { createCallResearchMango } from "./tools/call-research-mango"
+import { createCallBuildMango } from "./tools/call-build-mango"
+import { createCallIssueMango } from "./tools/call-issue-mango"
+import { createCallPrMango } from "./tools/call-pr-mango"
 
 const PR_MANGO_PROMPT = `# PR 망고
 
@@ -264,6 +267,57 @@ const BUILD_MANGO_PROMPT = `# 빌드 망고
 - 발생한 이슈 (있는 경우)
 `
 
+const COACH_MANGO_PROMPT = `# 코치 망고
+
+plan.md 기반 실행 오케스트레이션을 담당하는 서브에이전트입니다.
+
+## 역할
+
+메인 망고로부터 plan.md를 전달받아:
+1. plan.md 파싱 및 작업 목록 추출
+2. 작업별 담당 망고에게 순차 위임
+3. 각 작업 완료 후 검증 체크리스트 확인
+4. 모든 작업 완료 후 최종 검증
+5. 결과를 메인 망고에게 보고
+
+## 사용 가능 도구
+
+### 3계층 망고 호출
+- call_build_mango: 코드 작업 (구현, 수정, 리팩토링)
+- call_issue_mango: 이슈 생성/수정
+- call_pr_mango: PR 생성/머지
+
+### 공통 망고 호출
+- call_research_mango: 정보 조사/탐색
+
+## 워크플로우
+
+### 1. plan.md 파싱
+- 작업 섹션에서 체크리스트 추출
+- 검증 섹션에서 자동/수동 검증 항목 추출
+
+### 2. 순차 위임
+- 작업 순서대로 담당 망고 호출
+- 이전 작업 완료 확인 후 다음 작업 진행
+- 실패 시 롤백 후 메인 망고에게 보고
+
+### 3. 검증 처리
+- 자동 검증: 빌드 망고에게 위임 (빌드, 린트, 테스트)
+- 수동 검증: 체크리스트 항목을 메인 망고에게 확인 요청
+  - 예: 버전 업데이트 여부, 머지 방식 등
+
+### 4. 최종 보고
+- 완료된 작업 목록
+- 검증 결과 (자동/수동 구분)
+- 발생한 이슈 및 해결 방법
+
+## 주의 사항
+
+- **버전 업데이트 필수**: npm 프로젝트의 경우 package.json 버전 확인
+- **머지 방식 확인**: squash/rebase 금지, merge commit만 사용
+- **수동 검증 미완료 시 진행 중단**: 사용자 확인 필수
+`
+
 const RESEARCH_MANGO_PROMPT = `# 리서치 망고
 
 정보 조사 및 탐색을 전담하는 서브에이전트입니다.
@@ -350,6 +404,9 @@ const MANGO_PROMPT = `# 행동 지침
 const plugin: Plugin = async (ctx) => {
   console.log("[oh-my-mango] initialized")
   const call_research_mango = createCallResearchMango(ctx)
+  const call_build_mango = createCallBuildMango(ctx)
+  const call_issue_mango = createCallIssueMango(ctx)
+  const call_pr_mango = createCallPrMango(ctx)
 
   return {
     config: async (config) => {
@@ -375,6 +432,11 @@ const plugin: Plugin = async (ctx) => {
           description: "개별 작업 단위 진행/검증/보고/기록 서브에이전트",
           mode: "subagent",
         },
+        "coach-mango": {
+          prompt: COACH_MANGO_PROMPT,
+          description: "plan.md 기반 실행 오케스트레이션 서브에이전트",
+          mode: "subagent",
+        },
         "pr-mango": {
           prompt: PR_MANGO_PROMPT,
           description: "브랜치/PR 생성 및 작업 관리 서브에이전트",
@@ -398,6 +460,9 @@ const plugin: Plugin = async (ctx) => {
       find_content,
       find_recent,
       call_research_mango,
+      call_build_mango,
+      call_issue_mango,
+      call_pr_mango,
     },
   }
 }
