@@ -10,6 +10,7 @@ import { find_file, find_content, find_recent } from "./tools/find"
 import { createCallResearchMango } from "./tools/call-research-mango"
 import { createCallBuildMango } from "./tools/call-build-mango"
 import { createCallIssueMango } from "./tools/call-issue-mango"
+import { createCallPrMango } from "./tools/call-pr-mango"
 
 const PR_MANGO_PROMPT = `# PR 망고
 
@@ -405,6 +406,7 @@ const plugin: Plugin = async (ctx) => {
   const call_research_mango = createCallResearchMango(ctx)
   const call_build_mango = createCallBuildMango(ctx)
   const call_issue_mango = createCallIssueMango(ctx)
+  const call_pr_mango = createCallPrMango(ctx)
 
   return {
     config: async (config) => {
@@ -460,6 +462,7 @@ const plugin: Plugin = async (ctx) => {
       call_research_mango,
       call_build_mango,
       call_issue_mango,
+      call_pr_mango,
     },
   }
 }
