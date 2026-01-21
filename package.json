@@ -6,7 +6,7 @@
   "bugs": {
     "url": "https://github.com/ensia96/oh-my-mango/issues"
   },
-  "description": "OpenCode plugin for comprehensive problem solving with divide-and-conquer strategy",
+  "description": "OpenCode plugin for comprehensive problem solving with multi-agent orchestration and divide-and-conquer strategy",
   "devDependencies": {
     "@opencode-ai/plugin": "^1.1.20",
     "@types/node": "^22",
