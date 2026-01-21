@@ -8,6 +8,7 @@ import {
 } from "./tools/remind"
 import { find_file, find_content, find_recent } from "./tools/find"
 import { createCallResearchMango } from "./tools/call-research-mango"
+import { createCallBuildMango } from "./tools/call-build-mango"
 
 const PR_MANGO_PROMPT = `# PR 망고
 
@@ -401,6 +402,7 @@ const MANGO_PROMPT = `# 행동 지침
 const plugin: Plugin = async (ctx) => {
   console.log("[oh-my-mango] initialized")
   const call_research_mango = createCallResearchMango(ctx)
+  const call_build_mango = createCallBuildMango(ctx)
 
   return {
     config: async (config) => {
@@ -454,6 +456,7 @@ const plugin: Plugin = async (ctx) => {
       find_content,
       find_recent,
       call_research_mango,
+      call_build_mango,
     },
   }
 }
