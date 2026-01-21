@@ -426,6 +426,11 @@ const plugin: Plugin = async (ctx) => {
           description: "개별 작업 단위 진행/검증/보고/기록 서브에이전트",
           mode: "subagent",
         },
+        "coach-mango": {
+          prompt: COACH_MANGO_PROMPT,
+          description: "plan.md 기반 실행 오케스트레이션 서브에이전트",
+          mode: "subagent",
+        },
         "pr-mango": {
           prompt: PR_MANGO_PROMPT,
           description: "브랜치/PR 생성 및 작업 관리 서브에이전트",
