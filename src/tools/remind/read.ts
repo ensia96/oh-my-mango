@@ -9,12 +9,17 @@ export const remind_read = tool({
   args: {
     session_id: tool.schema.string().describe("세션 ID"),
     limit: tool.schema.number().optional().describe("최대 메시지 개수"),
+    order: tool.schema.enum(["asc", "desc"]).optional().describe("정렬 순서 (기본: desc)"),
   },
-  execute: async ({ session_id, limit }) => {
-    const limitCmd = limit ? `| head -${limit * 20}` : ""
+  execute: async ({ session_id, limit, order = "desc" }) => {
+    const sortOrder = order === "asc" ? "" : "-r"
+    const limitCmd = limit ? `| head -${limit}` : ""
 
     const { stdout, stderr } = await execAsync(`
-      for msg in ~/.local/share/opencode/storage/message/${session_id}/*.json; do
+      for msg in $(ls ~/.local/share/opencode/storage/message/${session_id}/*.json | while read f; do
+        created=$(jq -r '.time.created' "$f")
+        echo "$created $f"
+      done | sort -n ${sortOrder} ${limitCmd} | awk '{print $2}'); do
         msg_id=$(jq -r '.id' "$msg")
         role=$(jq -r '.role' "$msg")
         echo "=== [$role] ==="
@@ -22,7 +27,7 @@ export const remind_read = tool({
           jq -r 'select(.type == "text") | .text // empty' "$part" 2>/dev/null
         done
         echo ""
-      done ${limitCmd}
+      done
     `)
 
     if (stderr && !stdout) {
