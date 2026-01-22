@@ -5,6 +5,14 @@ import { canCall, getCallableTargets, type AgentId } from "../permissions"
 
 /**
  * 에이전트별 한글 설명
+ * 
+ * plan-mango용 call_mango_plan 도구:
+ * - call_mango_plan 도구를 사용하여 실행/어댑터 계층 에이전트를 호출합니다
+ * - 호출 가능 대상: research-mango, build-mango, issue-mango, pr-mango
+ * 
+ * coach-mango용 call_mango_coach 도구:
+ * - call_mango_coach 도구를 사용하여 실행/어댑터 계층 에이전트를 호출합니다  
+ * - 호출 가능 대상: research-mango, build-mango, issue-mango, pr-mango
  */
 const AGENT_DESCRIPTIONS: Record<string, string> = {
   "research-mango": "리서치 망고에게 정보 조사/탐색 요청",
@@ -49,7 +57,7 @@ export function createCallMango(ctx: PluginInput, callerAgent: AgentId) {
   const agentEnum = createAgentEnum(callableTargets)
   
   return tool({
-    description: "다른 망고 에이전트에게 작업 요청",
+    description: `다른 망고 에이전트에게 작업 요청 (${callerAgent}용)`,
     args: {
       agent: tool.schema.enum(Object.keys(agentEnum)).describe(
         `호출할 에이전트: ${callableTargets.map(target => 
