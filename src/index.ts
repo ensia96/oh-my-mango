@@ -7,10 +7,8 @@ import {
   remind_find,
 } from "./tools/remind"
 import { find_file, find_content, find_recent } from "./tools/find"
-import { createCallResearchMango } from "./tools/call-research-mango"
-import { createCallBuildMango } from "./tools/call-build-mango"
-import { createCallIssueMango } from "./tools/call-issue-mango"
-import { createCallPrMango } from "./tools/call-pr-mango"
+import { createCallMango } from "./tools/call-mango"
+
 
 const PR_MANGO_PROMPT = `# PR 망고
 
@@ -403,10 +401,6 @@ const MANGO_PROMPT = `# 행동 지침
 
 const plugin: Plugin = async (ctx) => {
   console.log("[oh-my-mango] initialized")
-  const call_research_mango = createCallResearchMango(ctx)
-  const call_build_mango = createCallBuildMango(ctx)
-  const call_issue_mango = createCallIssueMango(ctx)
-  const call_pr_mango = createCallPrMango(ctx)
 
   return {
     config: async (config) => {
@@ -416,37 +410,44 @@ const plugin: Plugin = async (ctx) => {
           prompt: MANGO_PROMPT,
           description: "oh-my-mango 기본 에이전트",
           mode: "primary",
-        },
+          permission: { call_mango_plan: "deny", call_mango_coach: "deny" },
+        } as any,
         "issue-mango": {
           prompt: ISSUE_MANGO_PROMPT,
           description: "이슈 생성 및 계획 수립 서브에이전트",
           mode: "subagent",
-        },
+          permission: { call_mango_plan: "deny", call_mango_coach: "deny" },
+        } as any,
         "plan-mango": {
           prompt: PLAN_MANGO_PROMPT,
           description: "이슈, 계획 문서, 브랜치, PR 검토/생성/보고 서브에이전트",
           mode: "subagent",
-        },
+          permission: { call_mango_plan: "allow", call_mango_coach: "deny" },
+        } as any,
         "build-mango": {
           prompt: BUILD_MANGO_PROMPT,
           description: "개별 작업 단위 진행/검증/보고/기록 서브에이전트",
           mode: "subagent",
-        },
+          permission: { call_mango_plan: "deny", call_mango_coach: "deny" },
+        } as any,
         "coach-mango": {
           prompt: COACH_MANGO_PROMPT,
           description: "plan.md 기반 실행 오케스트레이션 서브에이전트",
           mode: "subagent",
-        },
+          permission: { call_mango_plan: "deny", call_mango_coach: "allow" },
+        } as any,
         "pr-mango": {
           prompt: PR_MANGO_PROMPT,
           description: "브랜치/PR 생성 및 작업 관리 서브에이전트",
           mode: "subagent",
-        },
+          permission: { call_mango_plan: "deny", call_mango_coach: "deny" },
+        } as any,
         "research-mango": {
           prompt: RESEARCH_MANGO_PROMPT,
           description: "정보 조사 및 탐색 전담 서브에이전트",
           mode: "subagent",
-        },
+          permission: { call_mango_plan: "deny", call_mango_coach: "deny" },
+        } as any,
       }
       ;(config as { default_agent?: string }).default_agent = "mango"
     },
@@ -459,10 +460,8 @@ const plugin: Plugin = async (ctx) => {
       find_file,
       find_content,
       find_recent,
-      call_research_mango,
-      call_build_mango,
-      call_issue_mango,
-      call_pr_mango,
+      call_mango_plan: createCallMango(ctx, "plan-mango"),
+      call_mango_coach: createCallMango(ctx, "coach-mango"),
     },
   }
 }
