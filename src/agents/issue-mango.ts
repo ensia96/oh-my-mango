@@ -2,7 +2,7 @@ import { Agent } from "../core/agent";
 
 export class IssueMango extends Agent {
   readonly name = "issue-mango";
-  readonly description = "이슈 생성 및 관리 서브에이전트";
+  readonly description = "이슈 생성 및 관리 전문가";
   readonly mode = "subagent" as const;
 
   readonly prompt = `# 행동 지침

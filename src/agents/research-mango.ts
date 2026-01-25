@@ -2,7 +2,7 @@ import { Agent } from "../core/agent";
 
 export class ResearchMango extends Agent {
   readonly name = "research-mango";
-  readonly description = "정보 조사 및 탐색 서브에이전트";
+  readonly description = "정보 조사 및 탐색 전문가";
   readonly mode = "subagent" as const;
 
   readonly prompt = `# 행동 지침

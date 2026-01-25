@@ -2,7 +2,7 @@ import { Agent } from "../core/agent";
 
 export class BuildMango extends Agent {
   readonly name = "build-mango";
-  readonly description = "코드 작업 및 검증 서브에이전트";
+  readonly description = "코드 작업 및 검증 전문가";
   readonly mode = "subagent" as const;
 
   readonly prompt = `# 행동 지침

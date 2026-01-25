@@ -2,7 +2,7 @@ import { Agent } from "../core/agent";
 
 export class PrMango extends Agent {
   readonly name = "pr-mango";
-  readonly description = "브랜치/PR 생성 및 관리 서브에이전트";
+  readonly description = "브랜치/PR 생성 및 관리 전문가";
   readonly mode = "subagent" as const;
 
   readonly prompt = `# 행동 지침
