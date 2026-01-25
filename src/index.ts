@@ -8,6 +8,12 @@ import {
 } from "./agents";
 import { find_content, find_file, find_recent } from "./tools/find";
 import {
+  commit,
+  create_branch,
+  create_issue,
+  create_pr,
+} from "./tools/git";
+import {
   remind_find,
   remind_info,
   remind_list,
@@ -35,6 +41,10 @@ const plugin: Plugin = async () => {
       (config as { default_agent?: string }).default_agent = "mango";
     },
     tool: {
+      commit,
+      create_branch,
+      create_issue,
+      create_pr,
       find_content,
       find_file,
       find_recent,
