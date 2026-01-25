@@ -7,7 +7,6 @@ import {
   remind_find,
 } from "./tools/remind";
 import { find_file, find_content, find_recent } from "./tools/find";
-import { createCallMango } from "./tools/call-mango";
 
 // TODO
 const PR_MANGO_PROMPT = `# PR 망고
@@ -96,41 +95,7 @@ const ISSUE_MANGO_PROMPT = `#행동 지침
 5. 생성된 이슈 번호와 URL을 보고합니다.
 `;
 
-// TODO
-const PLAN_MANGO_PROMPT = `# 행동 지침
 
-**해결할 문제를 명확하게 이해하고, 목표 달성에 필요한 조건들을 기준으로 체계적인 계획을 수립하는 것이 목표입니다.**
-
-## 필수 지침
-
-- **문제 이해**: 해결할 문제와 목표를 명확히 파악합니다.
-
-## 역할
-
-## plan.md 양식
-
-\`\`\`markdown
-# {작업 제목}
-
-## 배경
-- {왜 필요한지, 관련 이슈/PR}
-
-## 작업
-- [ ] {작업 1}
-- [ ] {작업 2}
-
-## 검증
-- {어떻게 확인할지}
-\`\`\`
-
-## 브랜치 컨벤션
-
-### 이름 형식
-\`{이슈번호}/{유저}/{YYYY-MM-DD}\`
-
-### 생성 명령
-\`gh issue develop {이슈번호} --checkout --name "{형식}"\`
-`;
 
 // TODO
 const BUILD_MANGO_PROMPT = `# 행동 지침
@@ -182,22 +147,7 @@ const BUILD_MANGO_PROMPT = `# 행동 지침
 - 발생한 이슈 (있는 경우)
 `;
 
-const COACH_MANGO_PROMPT = `# 행동 지침
 
-**전문가들과의 협력을 통해 계획을 실행하고, 완벽한 결과를 도출하는 것이 목표입니다.**
-
-## 필수 지침
-
-- **목표 파악**: 계획의 목표를 이해하고, 의도에 부합하는 결과가 무엇인지 명확히 합니다.
-- **전략 수립**: 실행, 검토, 검증, 기록, 보고가 필요한 지점들을 확실히 파악하여 전략을 세웁니다.
-- **확실한 검증**: 활용할 수 있는 검증 수단, 방식을 적극적으로 모색하여 검증 계획을 수립합니다.
-- **완전성 확보**: 검토 및 검증 절차를 거친 실행 결과만 업무에 영향을 미치도록 보장합니다.
-- **품질 보증**: 담당 전문가가 최소한의 기본 검증을 수행하도록 하여 실행 결과의 최소 품질을 보호합니다.
-- **원만한 협력**: 각 단계에 적합한 전문가를 선정하여 실행하며, 원활한 소통을 유지합니다.
-- **검토 및 검증**: 실행 결과가 올바른지 검토하고, 확실하게 검증하며, 필요시 재작업을 요청합니다.
-- **적극적 보고**: 아주 약간이라도 모호한 상황이 발생하면 명확한 설명과 함께 보고합니다.
-- **투명한 기록**: 단계 실행이 완료되면 결과를, 필요시 과정까지 포함하여, 기록하거나 보고합니다.
-`;
 
 const RESEARCH_MANGO_PROMPT = `# 행동 지침
 
@@ -239,44 +189,26 @@ const plugin: Plugin = async (ctx) => {
           prompt: MANGO_PROMPT,
           description: "oh-my-mango 기본 에이전트",
           mode: "primary",
-          permission: { call_mango_plan: "deny", call_mango_coach: "deny" },
         } as any,
         "issue-mango": {
           prompt: ISSUE_MANGO_PROMPT,
-          description: "이슈 생성 및 계획 수립 서브에이전트",
+          description: "이슈 생성 및 관리 서브에이전트",
           mode: "subagent",
-          permission: { call_mango_plan: "deny", call_mango_coach: "deny" },
-        } as any,
-        "plan-mango": {
-          prompt: PLAN_MANGO_PROMPT,
-          description:
-            "이슈, 계획 문서, 브랜치, PR 검토/생성/보고 서브에이전트",
-          mode: "subagent",
-          permission: { call_mango_plan: "allow", call_mango_coach: "deny" },
         } as any,
         "build-mango": {
           prompt: BUILD_MANGO_PROMPT,
-          description: "개별 작업 단위 진행/검증/보고/기록 서브에이전트",
+          description: "코드 작업 및 검증 서브에이전트",
           mode: "subagent",
-          permission: { call_mango_plan: "deny", call_mango_coach: "deny" },
-        } as any,
-        "coach-mango": {
-          prompt: COACH_MANGO_PROMPT,
-          description: "plan.md 기반 실행 오케스트레이션 서브에이전트",
-          mode: "subagent",
-          permission: { call_mango_plan: "deny", call_mango_coach: "allow" },
         } as any,
         "pr-mango": {
           prompt: PR_MANGO_PROMPT,
-          description: "브랜치/PR 생성 및 작업 관리 서브에이전트",
+          description: "브랜치/PR 생성 및 관리 서브에이전트",
           mode: "subagent",
-          permission: { call_mango_plan: "deny", call_mango_coach: "deny" },
         } as any,
         "research-mango": {
           prompt: RESEARCH_MANGO_PROMPT,
-          description: "정보 조사 및 탐색 전담 서브에이전트",
+          description: "정보 조사 및 탐색 서브에이전트",
           mode: "subagent",
-          permission: { call_mango_plan: "deny", call_mango_coach: "deny" },
         } as any,
       };
       (config as { default_agent?: string }).default_agent = "mango";
@@ -290,8 +222,6 @@ const plugin: Plugin = async (ctx) => {
       find_file,
       find_content,
       find_recent,
-      call_mango_plan: createCallMango(ctx, "plan-mango"),
-      call_mango_coach: createCallMango(ctx, "coach-mango"),
     },
   };
 };
