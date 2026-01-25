@@ -1,5 +1,6 @@
 import type { Plugin } from "@opencode-ai/plugin";
 import {
+  AnalyzeMango,
   BuildMango,
   IssueMango,
   Mango,
@@ -31,6 +32,7 @@ const plugin: Plugin = async () => {
         ...Object.fromEntries(
           [
             new Mango(),
+            new AnalyzeMango(),
             new BuildMango(),
             new IssueMango(),
             new PrMango(),
