@@ -1,12 +1,5 @@
 import type { Plugin } from "@opencode-ai/plugin";
-import {
-  AnalyzeMango,
-  BuildMango,
-  IssueMango,
-  Mango,
-  PrMango,
-  ResearchMango,
-} from "./agents";
+import { Agent } from "./agent";
 import { find_content, find_file, find_recent } from "./tools/find";
 import {
   commit,
@@ -27,20 +20,8 @@ const plugin: Plugin = async () => {
 
   return {
     config: async (config) => {
-      config.agent = {
-        ...config.agent,
-        ...Object.fromEntries(
-          [
-            new Mango(),
-            new AnalyzeMango(),
-            new BuildMango(),
-            new IssueMango(),
-            new PrMango(),
-            new ResearchMango(),
-          ].map((agent) => [agent.name, agent.config]),
-        ),
-      };
-      (config as { default_agent?: string }).default_agent = "mango";
+      config.agent = Agent.team;
+      (config as { default_agent?: string }).default_agent = Agent.leader;
     },
     tool: {
       commit,
