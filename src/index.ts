@@ -1,42 +1,32 @@
 import type { Plugin } from "@opencode-ai/plugin";
 import { Agent } from "./agent";
-import { find_content, find_file, find_recent } from "./tools/find";
-import {
-  commit,
-  create_branch,
-  create_issue,
-  create_pr,
-} from "./tools/git";
-import {
-  remind_find,
-  remind_info,
-  remind_list,
-  remind_read,
-  remind_search,
-} from "./tools/remind";
+import { Tool } from "./tool";
 
 const plugin: Plugin = async () => {
   console.log("[oh-my-mango] initialized");
 
   return {
     config: async (config) => {
+      Object.assign(config, { default_agent: Agent.leader });
       config.agent = Agent.team;
-      (config as { default_agent?: string }).default_agent = Agent.leader;
+      config.permission = {
+        bash: {
+          "*gh issue create*": "ask",
+          "*gh pr create*": "ask",
+          "*gh pr merge*": "ask",
+          "*gh repo*": "ask",
+          "*git clean*": "ask",
+          "*git commit*": "ask",
+          "*git push*": "ask",
+          "*git rebase*": "ask",
+          "*git reset --hard*": "ask",
+          "*rm *": "ask",
+          "*sudo *": "ask",
+        },
+      };
+      config.tools = { grep: false };
     },
-    tool: {
-      commit,
-      create_branch,
-      create_issue,
-      create_pr,
-      find_content,
-      find_file,
-      find_recent,
-      remind_find,
-      remind_info,
-      remind_list,
-      remind_read,
-      remind_search,
-    },
+    tool: Tool.box,
   };
 };
 
