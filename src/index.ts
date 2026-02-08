@@ -7,8 +7,24 @@ const plugin: Plugin = async () => {
 
   return {
     config: async (config) => {
+      Object.assign(config, { default_agent: Agent.leader });
       config.agent = Agent.team;
-      (config as { default_agent?: string }).default_agent = Agent.leader;
+      config.permission = {
+        bash: {
+          "*gh issue create*": "ask",
+          "*gh pr create*": "ask",
+          "*gh pr merge*": "ask",
+          "*gh repo*": "ask",
+          "*git clean*": "ask",
+          "*git commit*": "ask",
+          "*git push*": "ask",
+          "*git rebase*": "ask",
+          "*git reset --hard*": "ask",
+          "*rm *": "ask",
+          "*sudo *": "ask",
+        },
+      };
+      config.tools = { grep: false };
     },
     tool: Tool.box,
   };
