@@ -7,7 +7,7 @@ if [[ "${CI:-}" != "true" ]]; then
   exit 1
 fi
 
-# v0.0.17 도구 교체 검증
+# v0.0.19 도구 및 스킬 검증
 EXPECTED="find-files
 git-branch
 git-commit
@@ -38,5 +38,30 @@ else
   echo ""
   echo "기대:"
   echo "$EXPECTED"
+  exit 1
+fi
+
+# 스킬 검증
+EXPECTED_SKILLS="before-git"
+
+echo ""
+echo "=== 스킬 목록 검증 ==="
+
+ACTUAL_SKILLS=$(bun -e "
+  import('./dist/src/skill.js').then(m => {
+    Object.keys(m.Skill.pack).sort().forEach(s => console.log(s));
+  });
+" 2>/dev/null | grep -v "^\[")
+
+echo "$ACTUAL_SKILLS"
+echo ""
+
+if [[ "$ACTUAL_SKILLS" == "$EXPECTED_SKILLS" ]]; then
+  echo "✅ 스킬 목록 일치 (1개)"
+else
+  echo "❌ 스킬 목록 불일치"
+  echo ""
+  echo "기대:"
+  echo "$EXPECTED_SKILLS"
   exit 1
 fi
