@@ -1,6 +1,10 @@
+import Database from "bun:sqlite";
 import { execSync } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import { tool, ToolDefinition } from "@opencode-ai/plugin";
+
+const DB_PATH = join(homedir(), ".local/share/opencode/opencode.db");
 
 export namespace Tool {
   function _(command: TemplateStringsArray, ...values: unknown[]) {
@@ -312,26 +316,49 @@ export namespace Tool {
         description: "세션 메시지 조회",
         async execute({ cursor, keyword, sessionId }) {
           try {
+            const db = new Database(DB_PATH, { readonly: true });
+            const conditions = [
+              '(data LIKE \'%"type":"text"%\' OR data LIKE \'%"tool":"task"%\')',
+            ];
+            const params: (string | number)[] = [];
+            if (sessionId) {
+              conditions.push("session_id = ?");
+              params.push(sessionId);
+            }
+            if (keyword) {
+              conditions.push("data LIKE ?");
+              params.push(`%${keyword}%`);
+            }
+            if (cursor) {
+              conditions.push("time_updated < ?");
+              params.push(cursor);
+            }
+            const query = `
+              SELECT time_updated, data FROM part
+              WHERE ${conditions.join(" AND ")}
+              ORDER BY time_updated DESC LIMIT 10
+            `;
+            const rows = db.prepare(query).all(...params) as {
+              time_updated: number;
+              data: string;
+            }[];
+            db.close();
             return JSON.stringify(
-              await Promise.all(
-                $.pipe(
-                  _`find ~/.local/share/opencode/storage/part -name "*.json"`,
-                  sessionId &&
-                    _`| xargs grep -l ${`"sessionID": "${sessionId}"`}`,
-                  _`| xargs grep -l '"type": "text"'`,
-                  keyword && _`| xargs grep -l ${keyword}`,
-                  _`| xargs stat -f "%m\t%N"`,
-                  cursor ? _`| awk -F'\t' '$1 < ${cursor}'` : null,
-                  _`| sort -rn | head -10`,
-                )
-                  .split("\n")
-                  .filter(Boolean)
-                  .map(async (line) => {
-                    const [mtime, path] = line.split("\t");
-                    const part = JSON.parse(await readFile(path, "utf-8"));
-                    return { cursor: Number(mtime), text: part.text };
-                  }),
-              ),
+              rows.map((row) => {
+                const part = JSON.parse(row.data);
+                return {
+                  cursor: row.time_updated,
+                  text:
+                    part.type === "text"
+                      ? part.text
+                      : `${part.tool}(${Object.entries(part.state.input)
+                          .map(
+                            ([parameter, value]) =>
+                              `${parameter}: ${String(value).slice(0, 30)}`,
+                          )
+                          .join(", ")})`,
+                };
+              }),
             );
           } catch (error) {
             return Messages.handles(error);
@@ -352,34 +379,71 @@ export namespace Tool {
             .string()
             .optional()
             .describe("세션의 프로젝트 절대 경로"),
+          id: is.string().optional().describe("세션 ID"),
+          parentId: is.string().optional().describe("부모 세션 ID"),
+          self: is
+            .boolean()
+            .optional()
+            .describe("현재 소속 세션 기준 조회 여부"),
           title: is.string().optional().describe("세션 제목 검색 키워드"),
         },
         description: "세션 목록 조회",
-        async execute({ cursor, directory, title }) {
+        async execute(
+          { cursor, directory, id, parentId, self, title },
+          context,
+        ) {
           try {
+            const db = new Database(DB_PATH, { readonly: true });
+            const conditions: string[] = [];
+            const params: (string | number)[] = [];
+            if (id) {
+              conditions.push("id = ?");
+              params.push(id);
+            }
+            if (parentId) {
+              conditions.push("parent_id = ?");
+              params.push(parentId);
+            }
+            if (self) {
+              conditions.push("id = ?");
+              params.push(context.sessionID);
+            }
+            if (directory) {
+              conditions.push("directory = ?");
+              params.push(directory);
+            }
+            if (title) {
+              conditions.push("title LIKE ?");
+              params.push(`%${title}%`);
+            }
+            if (cursor) {
+              conditions.push("time_updated < ?");
+              params.push(cursor);
+            }
+            const where = conditions.length
+              ? `WHERE ${conditions.join(" AND ")}`
+              : "";
+            const query = `
+              SELECT time_updated, id, parent_id, title, directory FROM session
+              ${where}
+              ORDER BY time_updated DESC LIMIT 10
+            `;
+            const rows = db.prepare(query).all(...params) as {
+              time_updated: number;
+              id: string;
+              parent_id: string | null;
+              title: string;
+              directory: string;
+            }[];
+            db.close();
             return JSON.stringify(
-              await Promise.all(
-                $.pipe(
-                  _`find ~/.local/share/opencode/storage/session -name "*.json"`,
-                  directory && _`| xargs grep -Fl ${directory}`,
-                  title && _`| xargs grep -Fl ${title}`,
-                  _`| xargs stat -f "%m\t%N"`,
-                  cursor ? _`| awk -F'\t' '$1 < ${cursor}'` : null,
-                  _`| sort -rn | head -10`,
-                )
-                  .split("\n")
-                  .filter(Boolean)
-                  .map(async (line) => {
-                    const [mtime, path] = line.split("\t");
-                    const session = JSON.parse(await readFile(path, "utf-8"));
-                    return {
-                      cursor: Number(mtime),
-                      directory: session.directory,
-                      id: session.id,
-                      title: session.title,
-                    };
-                  }),
-              ),
+              rows.map((row) => ({
+                cursor: row.time_updated,
+                directory: row.directory,
+                id: row.id,
+                parentID: row.parent_id,
+                title: row.title,
+              })),
             );
           } catch (error) {
             return Sessions.handles(error);
