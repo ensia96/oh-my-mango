@@ -1,9 +1,11 @@
 import type { Plugin } from "@opencode-ai/plugin";
 import { Agent } from "./agent";
+import { Skill } from "./skill";
 import { Tool } from "./tool";
 
 const plugin: Plugin = async () => {
   console.log("[oh-my-mango] initialized");
+  Skill.sync();
 
   return {
     config: async (config) => {
