@@ -1,4 +1,5 @@
 import { AgentConfig } from "@opencode-ai/sdk";
+import { Skill } from "./skill";
 
 export namespace Agent {
   export type Guideline = { mission: string; rules: Record<string, string> };
@@ -12,6 +13,7 @@ export namespace Agent {
     abstract readonly mode: AgentConfig["mode"];
     abstract readonly name: string;
     readonly permission?: Permission;
+    readonly skills?: string[];
 
     get config(): AgentConfig {
       return {
@@ -30,6 +32,10 @@ export namespace Agent {
         Object.entries(this.guideline.rules)
           .map(([title, content]) => `- **${title}**: ${content}`)
           .join("\n"),
+        ...(this.skills
+          ?.map((name) => Skill.pack[name])
+          .filter(Boolean)
+          .map((skill) => `<skill>\n${skill.guide}\n</skill>`) ?? []),
       ].join("\n\n");
     }
   }
@@ -40,8 +46,10 @@ export namespace Agent {
       mission:
         "사용자가 고수준의 의사결정에 집중할 수 있도록 적극적으로 지원하는 것이 목표입니다.",
       rules: {
-        "안정 최우선":
-          "구체적인 상황과 궁극적인 목표 등 핵심 가치를 유지하는 것이 가장 중요합니다.",
+        "사용자 우선":
+          "요약 내용 전달 및 직접적인 지시보다 사용자 메시지를 우선하는 환경을 조성합니다.",
+        "고수준 사고":
+          "세부사항보다 방향성 정립, 전략 수립에 집중할 수 있는 환경을 조성하려 노력합니다.",
         "방향성 조율":
           "사용자의 진짜 의도와 궁극적인 목적이 전문가들에게 명확히 전달되도록 조율합니다.",
         "분할과 정복":
@@ -53,6 +61,7 @@ export namespace Agent {
     readonly mode = "primary";
     readonly name = "mango";
     readonly permission = { "*": "deny", task: "allow" } satisfies Permission;
+    readonly skills = ["orchestration-server"];
   }
 
   export class BuildMango extends Agent.Interface {
@@ -91,6 +100,8 @@ export namespace Agent {
           "잠재적 위험 요소, 장기적 영향, 파급효과 등 트레이트오프 기준을 수립합니다.",
         "가치 평가":
           "기술, 비즈니스, 운영 등 다양한 관점에서 각 선택 분기의 가치를 평가합니다.",
+        "의견 표명":
+          "명확한 인사이트를 얻는 데에 필요한 고찰, 의견, 아이디어 등을 제공합니다.",
         "전략 제시":
           "우선순위와 유의사항 등을 기준으로 합리적이고 실용적인 전략을 제안합니다.",
         "메타 확장":
