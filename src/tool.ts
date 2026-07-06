@@ -73,27 +73,12 @@ export namespace Tool {
       config = tool({
         args: {
           base: is.string().optional().describe("기반 브랜치 (기본: main)"),
-          issueNumber: is.number().describe("이슈 번호"),
           project: is.string().describe("프로젝트 절대 경로"),
         },
         description: "브랜치 적용",
-        async execute({ base = "main", issueNumber, project }) {
+        async execute({ base = "main", project }) {
           try {
-            $`cd ${project} && git checkout ${base} && git pull`;
-            const issue = JSON.parse(
-              $`cd ${project} && gh issue view ${issueNumber} --json state,title`,
-            );
-            if (issue.state === "CLOSED")
-              $`cd ${project} && gh issue reopen ${issueNumber}`;
-            const name = `${issueNumber}/${$`gh api user --jq '.login'`}/${new Date().toLocaleDateString("en-CA")}`;
-            return $.pipe(
-              _`cd ${project}`,
-              $`cd ${project} && git branch`
-                .split("\n")
-                .some((branch) => branch.trim().replace(/^\* /, "") === name)
-                ? _`&& git checkout ${name}`
-                : _`&& gh issue develop ${issueNumber} --checkout --name ${name}`,
-            );
+            return $`cd ${project} && git fetch origin && git checkout ${base} && git pull && if git show-ref --verify --quiet refs/remotes/origin/dev; then git checkout dev; else git checkout -b dev && git push -u origin dev; fi && git pull`;
           } catch (error) {
             return Branch.handles(error);
           }
@@ -188,17 +173,11 @@ export namespace Tool {
     }
 
     export class RequestPull extends Interface {
-      static BRANCH_REGEX =
-        /^(\d+)\/([a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)\/(\d{4}-\d{2}-\d{2})$/;
-
       config = tool({
         args: {
           base: is.string().optional().describe("기반 브랜치 (기본: main)"),
           checklist: is.string().array().describe("검증 항목"),
-          closes: is
-            .boolean()
-            .optional()
-            .describe("이슈 종결 여부 (default: true)"),
+          issues: is.number().array().optional().describe("관련 이슈"),
           project: is.string().describe("프로젝트 절대 경로"),
           summary: is.string().describe("작업 요약"),
           why: is.string().describe("작업 목적"),
@@ -207,19 +186,13 @@ export namespace Tool {
         async execute({
           base = "main",
           checklist,
-          closes = true,
+          issues,
           project,
           summary,
           why,
         }) {
           try {
-            const branch = $`cd ${project} && git branch --show-current`;
-            const match = branch.match(RequestPull.BRANCH_REGEX);
-            if (!match) throw new Error("Current Branch Is Invalid");
-            const [, issue, user, date] = match;
-            if (date !== new Date().toLocaleDateString("en-CA"))
-              throw new Error("Date Of Branch Does Not Match Today");
-            return $`cd ${project} && gh pr create --base ${base} --title ${`[#${issue}] ${user} (${date})`} --body ${[
+            return $`cd ${project} && git checkout dev && gh pr create --base ${base} --head dev --title ${`[${$`gh api user --jq '.login'`}] ${$`date '+%Y-%m-%d %H:%M:%S'`}`} --body ${[
               "## Summary",
               summary,
               "## Why",
@@ -227,8 +200,13 @@ export namespace Tool {
               "## Verification",
               checklist.map((item) => `- [ ] ${item}`).join("\n"),
               "## Links",
-              `${closes ? "Closes" : "Relates to"} #${issue}`,
-            ].join("\n\n")} --assignee @me`;
+            ]
+              .concat(
+                issues?.length
+                  ? issues.map((issue) => `Closes #${issue}`).join("\n")
+                  : ["-"],
+              )
+              .join("\n\n")} --assignee @me`;
           } catch (error) {
             return RequestPull.handles(error);
           }
