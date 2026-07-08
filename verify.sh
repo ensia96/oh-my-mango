@@ -7,7 +7,7 @@ if [[ "${CI:-}" != "true" ]]; then
   exit 1
 fi
 
-# v0.1.2 도구 및 스킬 검증
+# v0.1.3 도구, 스킬 및 에이전트 검증
 EXPECTED="find-files
 git-branch
 git-commit
@@ -66,5 +66,71 @@ else
   echo ""
   echo "기대:"
   echo "$EXPECTED_SKILLS"
+  exit 1
+fi
+
+# 에이전트 검증
+EXPECTED_ENABLED_AGENTS="build-mango
+decision-mango
+mango
+remind-mango
+research-mango
+scout-mango
+workflow-mango"
+
+EXPECTED_DISABLED_AGENTS="build
+explore
+general
+plan"
+
+echo ""
+echo "=== 에이전트 목록 검증 ==="
+
+ACTUAL_ENABLED_AGENTS=$(bun -e "
+  import('./dist/src/agent.js').then(m => {
+    const excluded = new Set(['title', 'summary', 'compaction']);
+    Object.entries(m.Agent.team)
+      .filter(([name, config]) => !excluded.has(name) && config?.disable !== true)
+      .map(([name]) => name)
+      .sort()
+      .forEach(name => console.log(name));
+  });
+" 2>/dev/null | grep -v "^\[")
+
+ACTUAL_DISABLED_AGENTS=$(bun -e "
+  import('./dist/src/agent.js').then(m => {
+    const excluded = new Set(['title', 'summary', 'compaction']);
+    Object.entries(m.Agent.team)
+      .filter(([name, config]) => !excluded.has(name) && config?.disable === true)
+      .map(([name]) => name)
+      .sort()
+      .forEach(name => console.log(name));
+  });
+" 2>/dev/null | grep -v "^\[")
+
+echo "활성 에이전트:"
+echo "$ACTUAL_ENABLED_AGENTS"
+echo ""
+echo "비활성 에이전트:"
+echo "$ACTUAL_DISABLED_AGENTS"
+echo ""
+
+if [[ "$ACTUAL_ENABLED_AGENTS" == "$EXPECTED_ENABLED_AGENTS" ]]; then
+  echo "✅ 활성 에이전트 목록 일치 (7개)"
+else
+  echo "❌ 활성 에이전트 목록 불일치"
+  echo ""
+  echo "기대:"
+  echo "$EXPECTED_ENABLED_AGENTS"
+  exit 1
+fi
+
+if [[ "$ACTUAL_DISABLED_AGENTS" == "$EXPECTED_DISABLED_AGENTS" ]]; then
+  echo "✅ 비활성 에이전트 목록 일치 (4개)"
+else
+  echo "❌ 비활성 에이전트 목록 불일치"
+  echo ""
+  echo "기대:"
+  echo "$EXPECTED_DISABLED_AGENTS"
   exit 1
 fi
