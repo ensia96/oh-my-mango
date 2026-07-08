@@ -202,5 +202,10 @@ export namespace Agent {
     new ResearchMango(),
     new ScoutMango(),
     new WorkflowMango(),
-  ].reduce((team, agent) => ({ ...team, [agent.name]: agent.config }), {});
+  ].reduce((team, agent) => ({ ...team, [agent.name]: agent.config }), {
+    build: { disable: true },
+    explore: { disable: true },
+    general: { disable: true },
+    plan: { disable: true },
+  });
 }
