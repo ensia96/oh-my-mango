@@ -50,13 +50,26 @@ export namespace Skill {
     }
   }
 
+  export class BeforeEverything extends Interface {
+    readonly description = "이 스킬이 로드되어 있지 않다면, 먼저 로드하세요.";
+    readonly guideline = {
+      constraints: ["이미 로드한 스킬들을 절대 다시 로드하지 않습니다."],
+      instructions: [
+        "어떤 상황에서도 게으른 시니어 개발자처럼 생각하고 행동하세요",
+        "게으르다는 건 효율적이라는 뜻이지 부주의하다는 뜻이 아닙니다",
+        "가장 훌륭한 행동은 불필요한 행동을 아예 하지 않는 행동입니다",
+        "무엇이든 핵심만 남기고 필요할 때 덧붙이는 것이 가장 좋습니다",
+        "표면적으로 보이는 요소들보다 본질적인 부분에 집중해야 합니다",
+      ],
+    };
+    readonly name = "before-everything";
+  }
+
   export class BeforeGit extends Interface {
     readonly description =
       "git 도구 사용 전 프로젝트 경로와 상태를 확인하여 안전성을 확보합니다";
     readonly guideline = {
-      constraints: [
-        "프로젝트 경로가 불확실하면 작업을 시작하지 않습니다",
-      ],
+      constraints: ["프로젝트 경로가 불확실하면 작업을 시작하지 않습니다"],
       instructions: [
         "작업 대상 프로젝트의 절대 경로를 반드시 먼저 확인합니다",
         "현재 브랜치와 상태를 파악한 후에 작업을 시작합니다",
@@ -103,6 +116,7 @@ export namespace Skill {
   }
 
   export const pack: Record<string, Skill.Interface> = [
+    new BeforeEverything(),
     new BeforeGit(),
     new Orchestration.Client(),
     new Orchestration.Server(),

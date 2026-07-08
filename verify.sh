@@ -7,7 +7,7 @@ if [[ "${CI:-}" != "true" ]]; then
   exit 1
 fi
 
-# v0.0.19 도구 및 스킬 검증
+# v0.1.2 도구 및 스킬 검증
 EXPECTED="find-files
 git-branch
 git-commit
@@ -42,7 +42,8 @@ else
 fi
 
 # 스킬 검증
-EXPECTED_SKILLS="before-git
+EXPECTED_SKILLS="before-everything
+before-git
 orchestration-client
 orchestration-server"
 
@@ -59,7 +60,7 @@ echo "$ACTUAL_SKILLS"
 echo ""
 
 if [[ "$ACTUAL_SKILLS" == "$EXPECTED_SKILLS" ]]; then
-  echo "✅ 스킬 목록 일치 (3개)"
+  echo "✅ 스킬 목록 일치 (4개)"
 else
   echo "❌ 스킬 목록 불일치"
   echo ""
