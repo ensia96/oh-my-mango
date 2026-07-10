@@ -18,56 +18,6 @@ export namespace Tool {
     abstract readonly name: string;
   }
 
-  export class FindFiles extends Interface {
-    config = tool({
-      args: {
-        content: is.string().optional().describe("내용 정규표현식 패턴"),
-        cursor: is.number().optional().describe("이전 조회 마지막 mtime"),
-        directory: is
-          .string()
-          .optional()
-          .describe("검색 범위 절대 경로(기본: cwd)"),
-        path: is.string().optional().describe("경로 정규표현식 패턴"),
-      },
-      description: "파일 검색 (mtime 내림차순, 10개 단위)",
-      async execute({ content, cursor, directory = process.cwd(), path }) {
-        try {
-          return JSON.stringify(
-            $.pipe(
-              ...(content
-                ? [
-                    _`ag -l`,
-                    path && _`-G ${path}`,
-                    _`${content}`,
-                    _`${directory}`,
-                  ]
-                : [
-                    _`find ${directory} -type f 2>/dev/null`,
-                    path && _`| grep -E ${path}`,
-                  ]),
-              _`| xargs stat -f '%m\t%z\t%N' 2>/dev/null`,
-              cursor ? _`| awk -F'\t' '$1 < ${cursor}'` : null,
-              _`| sort -rn | head -10`,
-            )
-              .split("\n")
-              .filter(Boolean)
-              .map((line) => {
-                const [mtime, size, ...pathParts] = line.split("\t");
-                return {
-                  mtime: Number(mtime),
-                  path: pathParts.join("\t"),
-                  size: Number(size),
-                };
-              }),
-          );
-        } catch (error) {
-          return FindFiles.handles(error);
-        }
-      },
-    });
-    name = "find-files";
-  }
-
   export namespace Git {
     export class Branch extends Interface {
       config = tool({
@@ -410,7 +360,6 @@ export namespace Tool {
   }
 
   export const box: Record<string, ToolDefinition> = [
-    new FindFiles(),
     new Git.Branch(),
     new Git.Commit(),
     new Git.Issue(),

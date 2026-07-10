@@ -26,7 +26,6 @@ const plugin: Plugin = async () => {
           "*sudo *": "ask",
         },
       };
-      config.tools = { grep: false };
     },
     tool: Tool.box,
   };
