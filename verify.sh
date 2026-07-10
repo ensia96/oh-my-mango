@@ -7,9 +7,8 @@ if [[ "${CI:-}" != "true" ]]; then
   exit 1
 fi
 
-# v0.1.3 도구, 스킬 및 에이전트 검증
-EXPECTED="find-files
-git-branch
+# v0.1.4 도구, 스킬 및 에이전트 검증
+EXPECTED="git-branch
 git-commit
 git-issue
 git-request-merge
@@ -32,7 +31,7 @@ echo "$ACTUAL"
 echo ""
 
 if [[ "$ACTUAL" == "$EXPECTED" ]]; then
-  echo "✅ 도구 목록 일치 (10개)"
+  echo "✅ 도구 목록 일치 (9개)"
 else
   echo "❌ 도구 목록 불일치"
   echo ""
